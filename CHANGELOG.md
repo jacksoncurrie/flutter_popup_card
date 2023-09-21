@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5
+
+* Fix broken image paths in docs
+
 ## 0.0.4
 
 * Update image path in docs
