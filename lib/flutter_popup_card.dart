@@ -23,6 +23,9 @@ import 'package:flutter/material.dart';
 /// The `offset` argument is used to fine tune the position of the popped up
 /// widget. Use with [alignment] for positioning of the popup.
 ///
+/// The `useSafeArea` argument is used to place the popup inside a [SafeArea]
+/// so that it can avoid intrusion of the operating syste.
+///
 /// If the application has multiple [Navigator] objects, it may be necessary to
 /// call `Navigator.of(context, rootNavigator: true).pop(result)` to close the
 /// dialog rather than just `Navigator.pop(context, result)`.
@@ -49,6 +52,7 @@ import 'package:flutter/material.dart';
 ///   },
 ///   offset: const Offset(-16, 70),
 ///   alignment: Alignment.topRight,
+///   useSafeArea: true,
 /// );
 /// ```
 ///
@@ -64,12 +68,14 @@ Future<T?> showPopupCard<T>({
   required WidgetBuilder builder,
   AlignmentGeometry alignment = Alignment.center,
   Offset offset = Offset.zero,
+  bool useSafeArea = false,
 }) {
   return Navigator.of(context).push<T>(
     PopupCardRoute<T>(
       builder: builder,
       alignment: alignment,
       offset: offset,
+      useSafeArea: useSafeArea,
     ),
   );
 }
@@ -85,6 +91,7 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
     required this.builder,
     this.alignment = Alignment.center,
     this.offset = Offset.zero,
+    this.useSafeArea = false,
   });
 
   /// The builder that creates the widget to be popped up.
@@ -105,26 +112,34 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
   /// See [alignment] for aligning the popup in the screen.
   final Offset offset;
 
+  /// Whether the popup should begin within a safe area widget.
+  ///
+  /// This will put the popup outside of intrusions of the operating system.
+  final bool useSafeArea;
+
   @override
   Iterable<OverlayEntry> createOverlayEntries() {
+    final innerWidget = Transform.translate(
+      offset: offset,
+      child: Align(
+        alignment: alignment,
+        child: GestureDetector(
+          onTap: () {}, // Stops removing when inside clicked
+          child: Material(
+            color: Colors.transparent,
+            child: Builder(builder: builder),
+          ),
+        ),
+      ),
+    );
+
     return [
       OverlayEntry(
         builder: (context) {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: Navigator.of(context).maybePop,
-            child: Transform.translate(
-              offset: offset,
-              child: Align(
-                alignment: alignment,
-                child: GestureDetector(
-                  onTap: () {}, // Stops removing when inside clicked
-                  child: Material(
-                    child: Builder(builder: builder),
-                  ),
-                ),
-              ),
-            ),
+            child: useSafeArea ? SafeArea(child: innerWidget) : innerWidget,
           );
         },
       ),
