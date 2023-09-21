@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3
+
+* Updates docs and example
+
 ## 0.0.2
 
 * Fix background behind border radius
