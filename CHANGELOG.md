@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4
+
+* Update image path in docs
+
 ## 0.0.3
 
 * Updates docs and example
