@@ -1,8 +1,6 @@
 # Flutter popup card
 
-A card to popup overtop of your main app.
-
-A lightweight plugin for custom popup cards to be shown anywhere on the screen.
+A lightweight plugin to create a card or custom widget that can popup overtop of your main app.
 
 ![Mobile example](#example1) ![Desktop example](#example2)
 
@@ -34,7 +32,8 @@ showPopupCard(
   },
   offset: const Offset(-16, 70),
   alignment: Alignment.topRight,
+  useSafeArea: true,
 );
 ```
 
-See full example app [here](#example).
+See full example app [here](https://github.com/jacksoncurrie/flutter_popup_card/tree/main/example).
