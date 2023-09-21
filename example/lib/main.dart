@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_popup_card/flutter_popup_card.dart';
 
@@ -50,11 +52,14 @@ class _MyHomePageState extends State<MyHomePage> {
         return PopupCard(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
           child: const PopupCardDetails(),
         );
       },
-      offset: const Offset(-8, 48),
+      offset: const Offset(-8, 60),
       alignment: Alignment.topRight,
       useSafeArea: true,
     );
@@ -107,8 +112,10 @@ class PopupCardDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 300,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: math.min(450, MediaQuery.sizeOf(context).width - 16.0),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

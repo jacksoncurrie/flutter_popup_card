@@ -1,8 +1,11 @@
 # Flutter popup card
 
+[![pub package](https://img.shields.io/pub/v/flutter_popup_card.svg)](https://pub.dev/packages/flutter_popup_card)
+
 A lightweight plugin to create a card or custom widget that can popup overtop of your main app.
 
-![Mobile example](#example1) ![Desktop example](#example2)
+![Mobile example image](.docs/mobile-image.png)
+![Mobile example recording](.docs/mobile-recording.gif)
 
 ## Usage
 
