@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 /// widget. Use with [alignment] for positioning of the popup.
 ///
 /// The `useSafeArea` argument is used to place the popup inside a [SafeArea]
-/// so that it can avoid intrusion of the operating syste.
+/// so that it can avoid intrusion of the operating system.
 ///
 /// If the application has multiple [Navigator] objects, it may be necessary to
 /// call `Navigator.of(context, rootNavigator: true).pop(result)` to close the

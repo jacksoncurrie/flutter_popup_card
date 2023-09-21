@@ -65,11 +65,10 @@ packages:
   flutter_popup_card:
     dependency: "direct main"
     description:
-      name: flutter_popup_card
-      sha256: b7a7f62d21e5447434f4dede7f78999dc2b27f5b5e12d5149e8bcf30f27f0ffb
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1"
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -185,5 +184,5 @@ packages:
     source: hosted
     version: "0.1.4-beta"
 sdks:
-  dart: ">=3.1.2 <4.0.0"
+  dart: ">=3.1.1 <4.0.0"
   flutter: ">=1.17.0"
