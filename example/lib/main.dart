@@ -14,10 +14,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Demo app',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(),
       home: const MyHomePage(title: 'Demo app'),
     );
   }
@@ -62,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       offset: const Offset(-8, 60),
       alignment: Alignment.topRight,
       useSafeArea: true,
+      dimBackground: true,
     );
     if (result == null) return;
     setState(() {

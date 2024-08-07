@@ -36,6 +36,7 @@ showPopupCard(
   offset: const Offset(-16, 70),
   alignment: Alignment.topRight,
   useSafeArea: true,
+  dimBackground: true,
 );
 ```
 

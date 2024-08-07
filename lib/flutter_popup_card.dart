@@ -53,6 +53,7 @@ import 'package:flutter/material.dart';
 ///   offset: const Offset(-16, 70),
 ///   alignment: Alignment.topRight,
 ///   useSafeArea: true,
+///   dimBackground: true,
 /// );
 /// ```
 ///
@@ -69,6 +70,7 @@ Future<T?> showPopupCard<T>({
   AlignmentGeometry alignment = Alignment.center,
   Offset offset = Offset.zero,
   bool useSafeArea = false,
+  bool dimBackground = false,
 }) {
   return Navigator.of(context).push<T>(
     PopupCardRoute<T>(
@@ -76,6 +78,7 @@ Future<T?> showPopupCard<T>({
       alignment: alignment,
       offset: offset,
       useSafeArea: useSafeArea,
+      dimBackground: dimBackground,
     ),
   );
 }
@@ -92,6 +95,7 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
     this.alignment = Alignment.center,
     this.offset = Offset.zero,
     this.useSafeArea = false,
+    this.dimBackground = false,
   });
 
   /// The builder that creates the widget to be popped up.
@@ -117,9 +121,15 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
   /// This will put the popup outside of intrusions of the operating system.
   final bool useSafeArea;
 
+  /// Whether the popup should dim the background behind it.
+  ///
+  /// This will add a dark overlay behind the popup to make the card stand out
+  /// more.
+  final bool dimBackground;
+
   @override
   Iterable<OverlayEntry> createOverlayEntries() {
-    final innerWidget = Transform.translate(
+    Widget innerWidget = Transform.translate(
       offset: offset,
       child: Align(
         alignment: alignment,
@@ -133,13 +143,24 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
       ),
     );
 
+    if (useSafeArea) {
+      innerWidget = SafeArea(child: innerWidget);
+    }
+
+    if (dimBackground) {
+      innerWidget = DecoratedBox(
+        decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
+        child: innerWidget,
+      );
+    }
+
     return [
       OverlayEntry(
         builder: (context) {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: Navigator.of(context).maybePop,
-            child: useSafeArea ? SafeArea(child: innerWidget) : innerWidget,
+            child: innerWidget,
           );
         },
       ),
