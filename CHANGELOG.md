@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.6
+
+* Add `dimBackground` option to popup
+
 ## 0.0.5
 
 * Fix broken image paths in docs
