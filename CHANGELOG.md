@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.7
+
+* Update dependenices and Flutter version to run on 3.41.2
+* Add Github CI/CD pipelines for automatic build and test
+
 ## 0.0.6
 
 * Add `dimBackground` option to popup

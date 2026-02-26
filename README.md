@@ -40,4 +40,4 @@ showPopupCard(
 );
 ```
 
-See full example app [here](https://github.com/jacksoncurrie/flutter_popup_card/tree/main/example).
+See full example app: [Example App Code](https://github.com/jacksoncurrie/flutter_popup_card/tree/main/example).
