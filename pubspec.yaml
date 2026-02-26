@@ -1,6 +1,6 @@
 name: flutter_popup_card
 description: A Flutter plugin to create a card or custom widget that can popup overtop of your main app.
-version: 0.0.6
+version: 0.0.7
 homepage: https://github.com/jacksoncurrie/flutter_popup_card
 repository: https://github.com/jacksoncurrie/flutter_popup_card
 issue_tracker: https://github.com/fluttercommunity/plus_plugins/labels/package_info_plus
@@ -14,7 +14,7 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
 
