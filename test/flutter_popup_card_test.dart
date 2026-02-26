@@ -23,6 +23,13 @@ void main() {
   });
 
   testWidgets('Popup card matches style', (tester) async {
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.physicalSize = const Size(400, 300);
+    addTearDown(() {
+      tester.view.resetDevicePixelRatio();
+      tester.view.resetPhysicalSize();
+    });
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -46,8 +53,9 @@ void main() {
         ),
       ),
     );
-    final appFinder = find.byType(MaterialApp);
-    await expectLater(appFinder, matchesGoldenFile('popup.png'));
+    await tester.pumpAndSettle();
+    final popupFinder = find.byType(PopupCard);
+    await expectLater(popupFinder, matchesGoldenFile('popup.png'));
   });
 
   testWidgets('Popup card is shown and hidden', (tester) async {
