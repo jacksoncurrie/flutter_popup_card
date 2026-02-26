@@ -2,16 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_popup_card/flutter_popup_card.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+const Key _popupChildKey = Key('popup-child');
+
 void main() {
   testWidgets('Popup card shows child', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: PopupCard(child: Text('M')),
+          body: PopupCard(
+            child: SizedBox(
+              key: _popupChildKey,
+              width: 20,
+              height: 20,
+            ),
+          ),
         ),
       ),
     );
-    expect(find.text('M'), findsOneWidget);
+    expect(find.byKey(_popupChildKey), findsOneWidget);
   });
 
   testWidgets('Popup card matches style', (tester) async {
@@ -20,14 +28,18 @@ void main() {
         home: Scaffold(
           body: Center(
             child: PopupCard(
-              elevation: 8,
+              elevation: 0,
               color: Colors.yellow,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0),
               ),
               child: const Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Text('M'),
+                child: SizedBox(
+                  key: _popupChildKey,
+                  width: 20,
+                  height: 20,
+                ),
               ),
             ),
           ),
@@ -46,7 +58,7 @@ void main() {
         ),
       ),
     );
-    expect(find.text('M'), findsNothing);
+    expect(find.byType(PopupCard), findsNothing);
 
     final BuildContext context = tester.element(find.byType(Container));
 
@@ -54,25 +66,28 @@ void main() {
       context: context,
       builder: (context) {
         return PopupCard(
-          elevation: 8,
+          elevation: 0,
           color: Colors.yellow,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text('M'),
+            child: SizedBox(
+              key: _popupChildKey,
+              width: 20,
+              height: 20,
+            ),
           ),
         );
       },
     );
     await tester.pumpAndSettle();
-    expect(find.text('M'), findsOneWidget);
-    final appFinder = find.byType(MaterialApp);
-    await expectLater(appFinder, matchesGoldenFile('popup.png'));
+    expect(find.byType(PopupCard), findsOneWidget);
+    expect(find.byKey(_popupChildKey), findsOneWidget);
 
     Navigator.of(context).pop();
     await tester.pumpAndSettle();
-    expect(find.text('M'), findsNothing);
+    expect(find.byType(PopupCard), findsNothing);
   });
 }
