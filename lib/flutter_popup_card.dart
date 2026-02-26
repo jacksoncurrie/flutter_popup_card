@@ -1,4 +1,4 @@
-library flutter_popup_card;
+library;
 
 import 'package:flutter/material.dart';
 
@@ -149,7 +149,7 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
 
     if (dimBackground) {
       innerWidget = DecoratedBox(
-        decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
+        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5)),
         child: innerWidget,
       );
     }
