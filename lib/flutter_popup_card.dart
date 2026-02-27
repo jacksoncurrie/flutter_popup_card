@@ -87,8 +87,8 @@ Future<T?> showPopupCard<T>({
 ///
 /// See also:
 ///
-///  * [OverlayRoute], which displays widgets in the [Navigator]'s [Overlay].
-class PopupCardRoute<T> extends OverlayRoute<T> {
+///  * [PopupRoute], which displays widgets in the [Navigator]'s [Overlay].
+class PopupCardRoute<T> extends PopupRoute<T> {
   /// Creates a route that adds the builder into a popup.
   PopupCardRoute({
     required this.builder,
@@ -128,13 +128,33 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
   final bool dimBackground;
 
   @override
-  Iterable<OverlayEntry> createOverlayEntries() {
-    Widget innerWidget = Transform.translate(
+  bool get barrierDismissible => true;
+
+  @override
+  String? get barrierLabel => 'Dismiss';
+
+  @override
+  Color? get barrierColor =>
+      dimBackground ? Colors.black.withValues(alpha: 0.5) : Colors.transparent;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 160);
+
+  @override
+  Duration get reverseTransitionDuration => const Duration(milliseconds: 160);
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    Widget content = Transform.translate(
       offset: offset,
       child: Align(
         alignment: alignment,
         child: GestureDetector(
-          onTap: () {}, // Stops removing when inside clicked
+          onTap: () {}, // Stops dismiss when inside clicked.
           child: Material(
             color: Colors.transparent,
             child: Builder(builder: builder),
@@ -144,27 +164,34 @@ class PopupCardRoute<T> extends OverlayRoute<T> {
     );
 
     if (useSafeArea) {
-      innerWidget = SafeArea(child: innerWidget);
+      content = SafeArea(child: content);
     }
 
-    if (dimBackground) {
-      innerWidget = DecoratedBox(
-        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5)),
-        child: innerWidget,
-      );
-    }
+    return content;
+  }
 
-    return [
-      OverlayEntry(
-        builder: (context) {
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: Navigator.of(context).maybePop,
-            child: innerWidget,
-          );
-        },
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final scaleAlignment = alignment.resolve(Directionality.of(context));
+    final Animation<double> curvedAnimation = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+
+    return FadeTransition(
+      opacity: curvedAnimation,
+      child: ScaleTransition(
+        alignment: scaleAlignment,
+        scale: Tween<double>(begin: 0.96, end: 1).animate(curvedAnimation),
+        child: child,
       ),
-    ];
+    );
   }
 }
 

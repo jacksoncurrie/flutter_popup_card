@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.8
+
+* Add animations to opening/closing the card & background
+
 ## 0.0.7
 
 * Update dependenices and Flutter version to run on 3.41.2
