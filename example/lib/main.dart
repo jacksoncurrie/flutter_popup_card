@@ -34,6 +34,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final _centerKey = GlobalKey();
   late String message;
 
   @override
@@ -68,6 +69,31 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> _centerClicked() async {
+    final result = await showPopupCard<String>(
+      context: context,
+      builder: (context) {
+        return PopupCard(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: const PopupCardDetails(),
+        );
+      },
+      anchorKey: _centerKey,
+      alignment: Alignment.bottomCenter,
+      useSafeArea: true,
+      dimBackground: true,
+    );
+    if (result == null) return;
+    setState(() {
+      message = result;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,9 +110,21 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: Text(
-            message,
-            textAlign: TextAlign.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                message,
+                textAlign: TextAlign.center,
+              ),
+              TextButton(
+                key: _centerKey,
+                onPressed: () {
+                  _centerClicked();
+                },
+                child: Text('Open card here'),
+              ),
+            ],
           ),
         ),
       ),
