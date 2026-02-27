@@ -40,4 +40,50 @@ showPopupCard(
 );
 ```
 
+### Positioning
+
+You can position the popup in two ways:
+
+1. Screen-aligned (default): uses `alignment` and `offset` against the screen.
+2. Anchor-aligned: uses `anchorKey` to position relative to a widget, then applies `alignment` and `offset`.
+
+This sample anchors a popup to an `IconButton`:
+
+```dart
+final GlobalKey accountButtonKey = GlobalKey();
+
+IconButton(
+  key: accountButtonKey,
+  icon: const Icon(Icons.account_circle_rounded),
+  onPressed: () {
+    showPopupCard(
+      context: context,
+      anchorKey: accountButtonKey,
+      alignment: Alignment.bottomRight,
+      offset: const Offset(0, 8),
+      useSafeArea: true,
+      dimBackground: true,
+      builder: (context) {
+        return const PopupCard(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text('Anchored popup'),
+          ),
+        );
+      },
+    );
+  },
+);
+```
+
+For anchor-aligned popups, `alignment` controls which side/corner of the popup
+attaches to the anchor widget. For example:
+
+* `Alignment.bottomLeft`: popup opens below the anchor from the left side.
+* `Alignment.bottomRight`: popup opens below the anchor from the right side.
+* `Alignment.topLeft`: popup opens above the anchor from the left side.
+* `Alignment.topRight`: popup opens above the anchor from the right side.
+
+The popup is clamped to stay on screen, and `offset` is applied after anchor positioning.
+
 See full example app: [Example App Code](https://github.com/jacksoncurrie/flutter_popup_card/tree/main/example).

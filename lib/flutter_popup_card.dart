@@ -1,5 +1,7 @@
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 /// Displays a Material dialog above the current contents of the app, with
@@ -23,8 +25,16 @@ import 'package:flutter/material.dart';
 /// The `offset` argument is used to fine tune the position of the popped up
 /// widget. Use with [alignment] for positioning of the popup.
 ///
+/// The `anchorKey` argument can be used to anchor the popup to a specific
+/// widget. When provided, [alignment] chooses which side/corner of the popup
+/// is attached to which side/corner of the anchor, and [offset] is applied on
+/// top of that anchored position.
+///
 /// The `useSafeArea` argument is used to place the popup inside a [SafeArea]
 /// so that it can avoid intrusion of the operating system.
+///
+/// The `dimBackground` argument controls whether a dark modal barrier is shown
+/// behind the popup.
 ///
 /// If the application has multiple [Navigator] objects, it may be necessary to
 /// call `Navigator.of(context, rootNavigator: true).pop(result)` to close the
@@ -52,6 +62,7 @@ import 'package:flutter/material.dart';
 ///   },
 ///   offset: const Offset(-16, 70),
 ///   alignment: Alignment.topRight,
+///   anchorKey: _elementKey,
 ///   useSafeArea: true,
 ///   dimBackground: true,
 /// );
@@ -71,6 +82,7 @@ Future<T?> showPopupCard<T>({
   Offset offset = Offset.zero,
   bool useSafeArea = false,
   bool dimBackground = false,
+  GlobalKey? anchorKey,
 }) {
   return Navigator.of(context).push<T>(
     PopupCardRoute<T>(
@@ -79,8 +91,104 @@ Future<T?> showPopupCard<T>({
       offset: offset,
       useSafeArea: useSafeArea,
       dimBackground: dimBackground,
+      anchorKey: anchorKey,
     ),
   );
+}
+
+Rect? _resolveAnchorRect(BuildContext context, NavigatorState navigator) {
+  final anchorObject = context.findRenderObject();
+  final overlayObject = navigator.overlay?.context.findRenderObject();
+
+  if (anchorObject is! RenderBox ||
+      overlayObject is! RenderBox ||
+      !anchorObject.hasSize) {
+    return null;
+  }
+
+  final topLeft = anchorObject.localToGlobal(
+    Offset.zero,
+    ancestor: overlayObject,
+  );
+  return topLeft & anchorObject.size;
+}
+
+class _AnchoredPopupLayoutDelegate extends SingleChildLayoutDelegate {
+  _AnchoredPopupLayoutDelegate({
+    required this.anchorRect,
+    required this.alignment,
+    required this.offset,
+    required this.insets,
+  });
+
+  final Rect anchorRect;
+  final Alignment alignment;
+  final Offset offset;
+  final EdgeInsets insets;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    return BoxConstraints.loose(constraints.biggest);
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final anchorX = switch (alignment.x) {
+      < 0 => anchorRect.left,
+      > 0 => anchorRect.right,
+      _ => anchorRect.center.dx,
+    };
+    final popupAnchorX = switch (alignment.x) {
+      < 0 => 0,
+      > 0 => childSize.width,
+      _ => childSize.width / 2,
+    };
+
+    final anchorY = switch (alignment.y) {
+      < 0 => anchorRect.top,
+      > 0 => anchorRect.bottom,
+      _ => anchorRect.center.dy,
+    };
+    final popupAnchorY = switch (alignment.y) {
+      < 0 => childSize.height,
+      > 0 => 0,
+      _ => childSize.height / 2,
+    };
+
+    final x = anchorX - popupAnchorX + offset.dx;
+    final y = anchorY - popupAnchorY + offset.dy;
+
+    final minX = insets.left;
+    final double maxX =
+        math.max(minX, size.width - insets.right - childSize.width);
+    final minY = insets.top;
+    final double maxY =
+        math.max(minY, size.height - insets.bottom - childSize.height);
+
+    return Offset(
+      x.clamp(minX, maxX).toDouble(),
+      y.clamp(minY, maxY).toDouble(),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_AnchoredPopupLayoutDelegate oldDelegate) {
+    return anchorRect != oldDelegate.anchorRect ||
+        alignment != oldDelegate.alignment ||
+        offset != oldDelegate.offset ||
+        insets != oldDelegate.insets;
+  }
+}
+
+class _PopupMetricsObserver with WidgetsBindingObserver {
+  _PopupMetricsObserver(this.onMetricsChanged);
+
+  final VoidCallback onMetricsChanged;
+
+  @override
+  void didChangeMetrics() {
+    onMetricsChanged();
+  }
 }
 
 /// A route that displays popup cards in the [Navigator]'s [Overlay].
@@ -96,6 +204,7 @@ class PopupCardRoute<T> extends PopupRoute<T> {
     this.offset = Offset.zero,
     this.useSafeArea = false,
     this.dimBackground = false,
+    this.anchorKey,
   });
 
   /// The builder that creates the widget to be popped up.
@@ -127,6 +236,53 @@ class PopupCardRoute<T> extends PopupRoute<T> {
   /// more.
   final bool dimBackground;
 
+  /// Whether the popup should be anchored to a widget via key.
+  ///
+  /// This will position the popup relative to that widget using [alignment]
+  /// and [offset], instead of only screen alignment.
+  final GlobalKey? anchorKey;
+
+  _PopupMetricsObserver? _metricsObserver;
+  int _pendingMetricRefreshes = 0;
+
+  @override
+  void install() {
+    super.install();
+    _metricsObserver = _PopupMetricsObserver(_handleMetricsChanged);
+    WidgetsBinding.instance.addObserver(_metricsObserver!);
+  }
+
+  @override
+  void dispose() {
+    if (_metricsObserver != null) {
+      WidgetsBinding.instance.removeObserver(_metricsObserver!);
+      _metricsObserver = null;
+    }
+    super.dispose();
+  }
+
+  void _handleMetricsChanged() {
+    changedInternalState();
+    _pendingMetricRefreshes = 3; // Rebuild 3 times to settle position
+    _scheduleMetricRefresh();
+  }
+
+  void _scheduleMetricRefresh() {
+    if (_pendingMetricRefreshes <= 0) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!isActive) {
+        _pendingMetricRefreshes = 0;
+        return;
+      }
+      changedInternalState();
+      _pendingMetricRefreshes -= 1;
+      _scheduleMetricRefresh();
+    });
+  }
+
   @override
   bool get barrierDismissible => true;
 
@@ -149,21 +305,48 @@ class PopupCardRoute<T> extends PopupRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    Widget content = Transform.translate(
-      offset: offset,
-      child: Align(
-        alignment: alignment,
-        child: GestureDetector(
-          onTap: () {}, // Stops dismiss when inside clicked.
-          child: Material(
-            color: Colors.transparent,
-            child: Builder(builder: builder),
+    // Depend on MediaQuery so this route rebuilds and re-resolves anchor rect
+    // when screen metrics change (e.g. window resize or rotation).
+    MediaQuery.sizeOf(context);
+    final Widget popupChild = Builder(builder: builder);
+
+    final resolvedAnchorRect =
+        anchorKey?.currentContext != null && navigator != null
+            ? _resolveAnchorRect(anchorKey!.currentContext!, navigator!)
+            : null;
+
+    Widget content;
+    if (resolvedAnchorRect != null) {
+      final resolvedAlignment = alignment.resolve(Directionality.of(context));
+      final safeInsets =
+          useSafeArea ? MediaQuery.paddingOf(context) : EdgeInsets.zero;
+      content = SizedBox.expand(
+        child: CustomSingleChildLayout(
+          delegate: _AnchoredPopupLayoutDelegate(
+            anchorRect: resolvedAnchorRect,
+            alignment: resolvedAlignment,
+            offset: offset,
+            insets: safeInsets,
+          ),
+          child: Align(
+            alignment: Alignment.topLeft,
+            widthFactor: 1,
+            heightFactor: 1,
+            child: popupChild,
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      content = Transform.translate(
+        offset: offset,
+        child: Align(
+          alignment: alignment,
+          child: popupChild,
+        ),
+      );
+    }
 
-    if (useSafeArea) {
+    if (useSafeArea && resolvedAnchorRect == null) {
       content = SafeArea(child: content);
     }
 
@@ -188,7 +371,7 @@ class PopupCardRoute<T> extends PopupRoute<T> {
       opacity: curvedAnimation,
       child: ScaleTransition(
         alignment: scaleAlignment,
-        scale: Tween<double>(begin: 0.96, end: 1).animate(curvedAnimation),
+        scale: Tween<double>(begin: 0.98, end: 1).animate(curvedAnimation),
         child: child,
       ),
     );

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0
+
+* Add `anchorKey` to allow positioning card around elements
+
 ## 0.0.8
 
 * Add animations to opening/closing the card & background
