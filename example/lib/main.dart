@@ -22,10 +22,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({
-    required this.title,
-    super.key,
-  });
+  const MyHomePage({required this.title, super.key});
 
   final String title;
 
@@ -58,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: const PopupCardDetails(),
         );
       },
-      offset: const Offset(-8, 60),
+      offset: const Offset(-8, 64),
       alignment: Alignment.topRight,
       useSafeArea: true,
       dimBackground: true,
@@ -74,19 +71,19 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) {
         return PopupCard(
+          elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
             side: BorderSide(
               color: Theme.of(context).colorScheme.outlineVariant,
             ),
           ),
-          child: const PopupCardDetails(),
+          child: const PopupCardSmallDetails(),
         );
       },
       anchorKey: _centerKey,
       alignment: Alignment.bottomCenter,
-      useSafeArea: true,
-      dimBackground: true,
+      offset: Offset(0, 2),
     );
     if (result == null) return;
     setState(() {
@@ -113,10 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                message,
-                textAlign: TextAlign.center,
-              ),
+              Text(message, textAlign: TextAlign.center),
               TextButton(
                 key: _centerKey,
                 onPressed: () {
@@ -161,10 +155,7 @@ class PopupCardDetails extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             radius: 36,
             foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-            child: Text(
-              'AB',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            child: Text('AB', style: Theme.of(context).textTheme.titleLarge),
           ),
           const SizedBox(height: 4.0),
           Padding(
@@ -192,6 +183,25 @@ class PopupCardDetails extends StatelessWidget {
             child: const Text('Logout'),
           ),
           const SizedBox(height: 10.0),
+        ],
+      ),
+    );
+  }
+}
+
+class PopupCardSmallDetails extends StatelessWidget {
+  const PopupCardSmallDetails({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+      child: Row(
+        mainAxisSize: .min,
+        children: [
+          Icon(Icons.info),
+          SizedBox(width: 8.0),
+          Text('This is an information popup.\nOne use case of this libarary!'),
         ],
       ),
     );

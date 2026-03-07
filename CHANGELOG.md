@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+* Fix Material Card definition
+* Add another popup example and documentation
+
 ## 0.1.0
 
 * Add `anchorKey` to allow positioning card around elements

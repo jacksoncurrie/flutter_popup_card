@@ -99,6 +99,49 @@ void main() {
     expect(find.byType(PopupCard), findsNothing);
   });
 
+  testWidgets('Popup card applies Material body text style in popup route',
+      (tester) async {
+    const popupText = 'Styled popup text';
+    const popupTextStyle = TextStyle(
+      fontSize: 23,
+      fontWeight: FontWeight.w700,
+      color: Colors.deepOrange,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(
+          textTheme: const TextTheme(bodyMedium: popupTextStyle),
+        ),
+        home: Scaffold(
+          body: Container(),
+        ),
+      ),
+    );
+
+    showPopupCard(
+      context: tester.element(find.byType(Scaffold)),
+      builder: (context) {
+        return const PopupCard(
+          child: Text(popupText),
+        );
+      },
+    );
+
+    await tester.pumpAndSettle();
+
+    final richText = tester.widget<RichText>(
+      find.descendant(
+        of: find.byType(PopupCard),
+        matching: find.byType(RichText),
+      ),
+    );
+
+    expect(richText.text.style?.fontSize, popupTextStyle.fontSize);
+    expect(richText.text.style?.fontWeight, popupTextStyle.fontWeight);
+    expect(richText.text.style?.color, popupTextStyle.color);
+  });
+
   testWidgets('Popup card can anchor to key context', (tester) async {
     final triggerKey = GlobalKey();
 

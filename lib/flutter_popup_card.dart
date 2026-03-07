@@ -451,15 +451,26 @@ class PopupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: color ?? Theme.of(context).cardColor,
-        shape: shape ??
-            Theme.of(context).popupMenuTheme.shape ??
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
-        shadows: elevation == 0 ? null : kElevationToShadow[elevation],
+    final theme = Theme.of(context);
+    final effectiveShape = shape ??
+        theme.popupMenuTheme.shape ??
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0));
+
+    return Material(
+      type: MaterialType.card,
+      color: color ?? theme.cardColor,
+      elevation: elevation.toDouble(),
+      shadowColor: theme.shadowColor,
+      surfaceTintColor: Colors.transparent,
+      shape: effectiveShape,
+      clipBehavior: Clip.antiAlias,
+      child: IconTheme.merge(
+        data: theme.iconTheme,
+        child: DefaultTextStyle(
+          style: theme.textTheme.bodyMedium ?? const TextStyle(),
+          child: child,
+        ),
       ),
-      child: child,
     );
   }
 }
