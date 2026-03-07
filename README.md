@@ -4,8 +4,10 @@
 
 A lightweight plugin to create a card or custom widget that can popup overtop of your main app.
 
-<img src="https://github.com/jacksoncurrie/flutter_popup_card/blob/main/.docs/mobile-image.png?raw=true" alt="Mobile example image" width="250" />
-<img src="https://github.com/jacksoncurrie/flutter_popup_card/blob/main/.docs/mobile-recording.gif?raw=true" alt="Mobile example recording" width="250" />
+<p>
+  <img src="https://github.com/jacksoncurrie/flutter_popup_card/blob/main/.docs/mobile-image.png?raw=true" alt="Mobile example image" width="250" />
+  <img src="https://github.com/jacksoncurrie/flutter_popup_card/blob/main/.docs/mobile-recording.gif?raw=true" alt="Mobile example recording" width="250" />
+</p>
 
 ## Usage
 
