@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+* Clean up package metadata for pub.dev
+* Update example Android/Kotlin Gradle configuration
+
 ## 0.1.1
 
 * Fix Material Card definition
